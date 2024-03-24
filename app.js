@@ -227,6 +227,12 @@ class App {
         console.error(
           `[ERROR] RPC encountered error for message ${JSON.stringify(parsed_message)}: ${e}, ${e.stack}`
         )
+        this.websocket.send(
+          JSON.stringify({
+            action: "LOGS",
+            data: `RPC encountered error for message ${JSON.stringify(parsed_message)}: ${e}, ${e.stack}`,
+          })
+        )
         console.error(`[ERROR] RPC action ${parsed_message.action} encountered error: `, e)
       }
     }.bind(this))
