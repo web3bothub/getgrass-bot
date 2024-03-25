@@ -17,7 +17,10 @@ const WebSocket = require('ws')
 const { faker } = require('@faker-js/faker')
 const { v3: uuidv3 } = require('uuid')
 const uuid = require('uuid')
+const fs = require('fs')
+const path = require('path')
 const { HttpsProxyAgent } = require('https-proxy-agent')
+const { sleep, getRandomInt } = require('./utils')
 const getUnixTimestamp = () => Math.floor(Date.now() / 1000)
 
 function uuidv4() {
@@ -46,10 +49,6 @@ const STATUSES = {
 }
 
 let cookieJars = {}
-
-const sleep = (ms) => {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
 
 const performHttpRequest = async (params) => {
   console.log(`performHttpRequest`)
@@ -160,6 +159,11 @@ class App {
       console.info(`[INITIALIZE] request with proxy: ${this.proxy}...`)
     }
 
+    if (this.retries > 2) {
+      console.error(`[ERROR] too many retries(${this.retries}), sleeping...`)
+      await sleep(getRandomInt(10000, 60000))
+    }
+
     // Loop through each websocketUrl in case the other does not work
     const websocketUrl = WEBSOCKET_URLS[this.retries % WEBSOCKET_URLS.length]
 
@@ -167,6 +171,7 @@ class App {
       agent: new HttpsProxyAgent(this.proxy),
       headers: { 'user-agent': this.userAgent },
       rejectUnauthorized: false,
+      ca: fs.readFileSync(path.join(__dirname, '/ssl/websocket.pem')),
     })
 
     this.websocket.on('open', async function (e) {
@@ -177,6 +182,8 @@ class App {
 
     this.websocket.on('message', async function (message) {
       console.log(`[REVEIVED] received message: ${message}`)
+
+      await sleep(getRandomInt(250, 500))
 
       // Update last live connection timestamp
       this.lastLiveConnectionTimestamp = getUnixTimestamp()
@@ -287,7 +294,7 @@ class App {
       } catch (e) {
         // Do nothing.
       }
-
+      await sleep(getRandomInt(1250, 20500))
       this.initialize()
       clearInterval(timer)
       return
