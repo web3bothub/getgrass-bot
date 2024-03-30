@@ -30,7 +30,7 @@
 </head>
 
 <body class="bg-gray-50 dark:bg-gray-900" x-data="initData" x-init="users = await getUsers()">
-  <section class="py-3 sm:py-5 container mx-auto">
+  <section class="p-4 lg:p-5 container mx-auto">
     <div class="py-6 flex items-center gap-4">
       <h1 class="text-2xl font-semibold text-gray-800 dark:text-gray-200">用户列表</span>
         <span x-show="refreshing" class="text-sm text-gray-500 dark:text-gray-400">刷新中...</span>
@@ -38,35 +38,35 @@
     <div class="flex flex-col gap-5">
       <template x-for="user in users">
         <div class="border dark:border-gray-700 p-4 rounded shadow-sm">
-          <div class="border-b dark:border-gray-700 pb-4 flex flex-wrap tems-center justify-between gap-6">
-            <div class="flex items-center gap-2">
+          <div class="border-b dark:border-gray-700 pb-4 flex flex-col lg:flex-row flex-wrap tems-center justify-between gap-6">
+            <div class="flex flex-col lg:flex-row lg:items-center gap-2">
               <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200" x-text="user.name || '未命名'"></h2>
               <span class="text-sm text-gray-400 dark:text-gray-500" x-text="user.id || 'unknown'"></span>
-              <span class="text-gray-400">・</span>
+              <span class="text-gray-400 hidden lg:block">・</span>
               <time class="text-sm text-gray-400 dark:text-gray-600" x-text="dayjs(user.createdAt).format('YYYY/MM/DD HH:mm')"></time>
             </div>
             <div class="flex items-center gap-4">
-              <div class="flex items-center gap-4">
+              <div class="flex flex-col lg:flex-row items-center gap-1 lg:gap-4">
                 <span class="text-sm text-gray-500 dark:text-gray-400">限额</span>
                 <span class="text-sm text-gray-600 dark:text-gray-200" x-text="user.ipsCount"></span>
               </div>
-              <div class="flex items-center gap-4">
+              <div class="flex flex-col lg:flex-row items-center gap-1 lg:gap-4">
                 <span class="text-sm text-gray-500 dark:text-gray-400">历史</span>
                 <span class="text-sm text-gray-600 dark:text-gray-200" x-text="Object.values(user.ips).length"></span>
               </div>
-              <div class="flex items-center gap-4">
+              <div class="flex flex-col lg:flex-row items-center gap-1 lg:gap-4">
                 <span class="text-sm text-gray-500 dark:text-gray-400">在线</span>
                 <span class="text-sm text-green-500" x-text="Object.values(user.ips).filter(i => i.status == 'active').length"></span>
               </div>
-              <div class="flex items-center gap-4">
+              <div class="flex flex-col lg:flex-row items-center gap-1 lg:gap-4">
                 <span class="text-sm text-gray-500 dark:text-gray-400">休眠</span>
                 <span class="text-sm text-green-500" x-text="Object.values(user.ips).filter(i => i.sleeping).length"></span>
               </div>
-              <div class="flex items-center gap-4">
+              <div class="flex flex-col lg:flex-row items-center gap-1 lg:gap-4">
                 <span class="text-sm text-gray-500 dark:text-gray-400">离线</span>
                 <span class="text-sm text-orange-500" x-text="Object.values(user.ips).filter(i => i.status == 'closed').length"></span>
               </div>
-              <div class="flex items-center gap-4">
+              <div class="flex flex-col lg:flex-row items-center gap-1 lg:gap-4">
                 <span class="text-sm text-gray-500 dark:text-gray-400">失败</span>
                 <span class="text-sm text-red-500" x-text="Object.values(user.ips).filter(i => i.status == 'error').length"></span>
               </div>

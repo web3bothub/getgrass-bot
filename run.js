@@ -13,7 +13,7 @@ async function main() {
     process.exit(1)
   }
 
-  initUser(userId, appName, ipsCount)
+  initUser(userId, appName, proxyCount)
 
   const command = `pm2 start start.js --name ${appName} --restart-delay=30000 -- --user ${userId} --area ${area} --count ${proxyCount}`
 

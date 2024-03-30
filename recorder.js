@@ -1,20 +1,20 @@
 const fs = require('fs')
-const path = require('path')
 const root = __dirname
 
 const initUser = (userId, name, ipsCount) => {
   const userPath = `${root}/web/users/${userId}.json`
 
-  let user = {
-    id: userId,
-    name: name || 'unknown',
-    ipsCount: ipsCount || 50,
-    createdAt: Date.now(),
+  let existsedUser = {}
+  if (fs.existsSync(userPath)) {
+    existsedUser = JSON.parse(fs.readFileSync(userPath, 'utf-8'))
   }
 
-  if (fs.existsSync(userPath)) {
-    const existsedUser = JSON.parse(fs.readFileSync(userPath, 'utf-8'))
-    user = { ...user, ...existsedUser }
+  let user = {
+    ...existsedUser,
+    id: userId,
+    name: name || existsedUser.name || '未命名',
+    ipsCount: ipsCount || existsedUser.ipsCount || 50,
+    createdAt: existsedUser.createdAt || Date.now(),
   }
 
   fs.writeFileSync(userPath, JSON.stringify(user, null, 2))
