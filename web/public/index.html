@@ -39,8 +39,8 @@
       <template x-for="user in users">
         <div class="border dark:border-gray-700 p-4 rounded shadow-sm">
           <div class="border-b dark:border-gray-700 pb-4 flex flex-col lg:flex-row flex-wrap tems-center justify-between gap-6">
-            <div class="flex flex-col lg:flex-row lg:items-center gap-2">
-              <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200" x-text="user.name || '未命名'"></h2>
+            <div class="flex flex-col lg:flex-row lg:items-center gap-1">
+              <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mr-2" x-text="user.name || '未命名'"></h2>
               <span class="text-sm text-gray-400 dark:text-gray-500" x-text="user.id || 'unknown'"></span>
               <span class="text-gray-400 hidden lg:block">・</span>
               <time class="text-sm text-gray-400 dark:text-gray-600" x-text="dayjs(user.createdAt).format('YYYY/MM/DD HH:mm')"></time>
@@ -74,15 +74,15 @@
           </div>
           <div class="flex gap-1 flex-wrap my-4">
             <template x-for="(ip, index) in user.ips || {}">
-              <span class="inline-block h-5 w-5 rounded-sm" :class="{
+              <span class="inline-block h-5 w-5 rounded-sm animate-pulse" :class="{
                   'bg-green-500': ip.status == 'active',
                   'bg-red-500': ip.status == 'error',
-                  'bg-gray-500': ['closed'].includes(ip.status)
+                  'bg-gray-400 dark:bg-gray-500': ['closed'].includes(ip.status)
                 }"></span>
             </template>
             <template x-if="Object.values(user.ips).length < (user.ipsCount || 50)">
               <template x-for="i in 50">
-                <span class="inline-block bg-gray-50 dark:bg-gray-800 h-5 w-5 rounded-sm"></span>
+                <span class="inline-block h-5 w-5 rounded-sm bg-gray-200/50 dark:bg-gray-800"></span>
               </template>
             </template>
           </div>
