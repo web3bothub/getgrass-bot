@@ -60,7 +60,7 @@
               </div>
               <div class="flex flex-col lg:flex-row items-center gap-1 lg:gap-4">
                 <span class="text-sm text-gray-500 dark:text-gray-400">休眠</span>
-                <span class="text-sm text-green-500" x-text="Object.values(user.ips).filter(i => i.sleeping).length"></span>
+                <span class="text-sm text-blue-500" x-text="Object.values(user.ips).filter(i => i.sleeping).length"></span>
               </div>
               <div class="flex flex-col lg:flex-row items-center gap-1 lg:gap-4">
                 <span class="text-sm text-gray-500 dark:text-gray-400">离线</span>
@@ -75,9 +75,10 @@
           <div class="flex gap-1 flex-wrap my-4">
             <template x-for="(ip, index) in user.ips || {}">
               <span class="inline-block h-5 w-5 rounded-sm animate-pulse" :class="{
-                  'bg-green-500': ip.status == 'active',
+                  'bg-green-500': ip.status == 'active' && !ip.sleeping,
                   'bg-red-500': ip.status == 'error',
-                  'bg-gray-400 dark:bg-gray-500': ['closed'].includes(ip.status)
+                  'bg-blue-300': ip.sleeping,
+                  'bg-orange-100 dark:bg-orange-400': ['closed'].includes(ip.status)
                 }"></span>
             </template>
             <template x-if="Object.values(user.ips).length < (user.ipsCount || 50)">
