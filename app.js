@@ -324,7 +324,7 @@ module.exports = {
   run: async function run(user, proxy) {
     const app = new App(user, proxy)
 
-    console.log(`[START] [${user.id}] starting...`)
+    console.log(`[START] [${user.userId}] starting...`)
 
     await app.initialize()
 

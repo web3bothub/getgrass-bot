@@ -11,9 +11,11 @@
   "license": "ISC",
   "dependencies": {
     "@faker-js/faker": "^8.4.1",
+    "@inquirer/prompts": "^4.3.1",
     "commander": "^12.0.0",
     "http-proxy-agent": "^7.0.2",
     "https-proxy-agent": "^7.0.4",
+    "inquirer": "^9.2.17",
     "socks-proxy-agent": "^8.0.2",
     "uuid": "^9.0.1",
     "ws": "^8.16.0"

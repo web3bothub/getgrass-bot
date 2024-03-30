@@ -14,14 +14,14 @@ const options = program.opts()
 
 const userId = options.user
 const area = options.area
-const proxyCount = options.proxyCount || 50
+const proxyCount = options.count || 50
 
 if (!userId || !area) {
   program.help()
 }
 
 const USER = {
-  userId: userId,
+  id: userId,
   userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
 }
 
@@ -33,12 +33,12 @@ for (let index = 0; index < proxyCount; index++) {
   PROXIES.push(PROXY_TEMPLATE.replace('[SID]', generateRandomString(10)))
 }
 
-console.log(`Starting with user ${userId} in ${area} with ${proxyCount} proxies...`)
+console.log(`[${userId}] Starting with user with ${proxyCount} proxies in ${area}...`)
 
 async function main() {
   const promises = PROXIES.map(async proxy => {
     await sleep(getRandomInt(1000, 120000))
-    console.log(`Starting with proxy ${proxy} and user ${user.id}`)
+    console.log(`[${USER.id}] Starting with proxy ${proxy}...`)
     await run(USER, proxy)
   })
 
