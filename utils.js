@@ -1,3 +1,6 @@
+const { HttpsProxyAgent } = require('https-proxy-agent')
+const { ProxyAgent } = require('undici')
+
 function generateRandomString(length) {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
   let result = ''
@@ -19,4 +22,11 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled) // The maximum is exclusive and the minimum is inclusive
 }
 
-module.exports = { generateRandomString, getRandomInt, sleep }
+async function getIpAddress(proxy) {
+  const dispatcher = new ProxyAgent(proxy)
+  return await fetch('https://api.ipify.org?format=json', proxy ? { dispatcher } : {})
+    .then(response => response.json())
+    .then(data => data.ip)
+}
+
+module.exports = { generateRandomString, getRandomInt, sleep, getIpAddress }

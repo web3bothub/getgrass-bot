@@ -1,5 +1,6 @@
 const { exec } = require('child_process')
 const { input } = require('@inquirer/prompts')
+const { initUser } = require('./recorder')
 
 async function main() {
   const userId = await input({ message: 'User ID: ' })
@@ -12,6 +13,8 @@ async function main() {
     process.exit(1)
   }
 
+  initUser(userId, appName, ipsCount)
+
   const command = `pm2 start start.js --name ${appName} --restart-delay=30000 -- --user ${userId} --area ${area} --count ${proxyCount}`
 
   exec(command, (error, stdout) => {
@@ -23,8 +26,6 @@ async function main() {
     console.log(`stdout: ${stdout}`)
     console.error(`command: ${command}`)
   })
-
-  exec(`pm2 logs ${appName}`)
 }
 
 main().catch(console.error)

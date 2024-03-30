@@ -2,6 +2,7 @@
 const { program } = require('commander')
 const { sleep, getRandomInt, generateRandomString } = require('./utils')
 const { run } = require("./app")
+const { initUser } = require('./recorder')
 
 program
   .option('-u, --user <string>', '<userId>')
@@ -25,7 +26,7 @@ const USER = {
   userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
 }
 
-const PROXY_TEMPLATE = `http://storm-overtrue_area-${area}_life-120_session-[SID]:1234578@hk.stormip.cn:1000`
+const PROXY_TEMPLATE = `http://storm-overtrue_area-${area}_life-120_session-[SID]:1234578@us.stormip.cn:1000`
 
 const PROXIES = []
 

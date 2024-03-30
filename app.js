@@ -14,14 +14,14 @@
 */
 
 const WebSocket = require('ws')
-const { faker } = require('@faker-js/faker')
 const { v3: uuidv3 } = require('uuid')
 const uuid = require('uuid')
 const fs = require('fs')
 const path = require('path')
 const { HttpsProxyAgent } = require('https-proxy-agent')
-const { sleep, getRandomInt } = require('./utils')
+const { sleep, getRandomInt, generateRandomString, getIpAddress } = require('./utils')
 const getUnixTimestamp = () => Math.floor(Date.now() / 1000)
+const recorder = require('./recorder')
 
 function uuidv4() {
   return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c) =>
@@ -159,8 +159,15 @@ class App {
       console.info(`[INITIALIZE] request with proxy: ${this.proxy}...`)
     }
 
+    // Get the IP address of the proxy
+    const ipAddress = await getIpAddress(this.proxy) || 'unknown-'.generateRandomString(10)
+
+    recorder.setUserIpStatus(this.userId, ipAddress, 'active')
+    recorder.increaseUserIpRetries(this.userId, ipAddress)
+
     if (this.retries > 2) {
       console.error(`[ERROR] too many retries(${this.retries}), sleeping...`)
+      recorder.markAsSleeping(this.userId, ipAddress)
       await sleep(getRandomInt(10000, 60000))
     }
 
@@ -178,12 +185,14 @@ class App {
       console.log("[OPENED] Websocket Open")
       this.lastLiveConnectionTimestamp = getUnixTimestamp()
       this.websocketStatus = STATUSES.CONNECTED
+      recorder.setUserIpStatus(this.userId, ipAddress, 'open')
     }.bind(this))
 
     this.websocket.on('message', async function (message) {
+      recorder.setUserIpStatus(this.userId, ipAddress, 'active')
       console.log(`[REVEIVED] received message: ${message}`)
 
-      await sleep(getRandomInt(250, 500))
+      await sleep(getRandomInt(2, 500))
 
       // Update last live connection timestamp
       this.lastLiveConnectionTimestamp = getUnixTimestamp()
@@ -241,6 +250,9 @@ class App {
           })
         )
         console.error(`[ERROR] RPC action ${parsed_message.action} encountered error: `, e)
+
+        recorder.setUserIpStatus(this.userId, ipAddress, 'error')
+        recorder.updateUser(this.userId, 'lastError', e)
       }
     }.bind(this))
 
@@ -250,12 +262,18 @@ class App {
       console.log(`[CLOSE] Connection died: ${code}`)
       this.websocketStatus = STATUSES.DEAD
       this.retries++
+      recorder.setUserIpStatus(this.userId, ipAddress, 'closed')
+      recorder.updateUser(this.userId, 'lastError', 'Connection died')
+      recorder.increaseUserIpRetries(this.userId, ipAddress)
     }.bind(this))
 
     this.websocket.on('error', function (error) {
       this.retries++
+      recorder.setUserIpStatus(this.userId, ipAddress, 'error')
+      recorder.updateUser(this.userId, 'lastError', error)
+      recorder.increaseUserIpRetries(this.userId, ipAddress)
       console.error(`[ERROR] ${error}`)
-    })
+    }.bind(this))
   }
 
   async ping(timer) {
@@ -294,7 +312,7 @@ class App {
       } catch (e) {
         // Do nothing.
       }
-      await sleep(getRandomInt(1250, 20500))
+      await sleep(getRandomInt(120, 20500))
       this.initialize()
       clearInterval(timer)
       return
@@ -308,7 +326,7 @@ class App {
     // If this timestamp gets too old, the WebSocket
     // will be severed and started again.
     const message = JSON.stringify({
-      id: uuidv4(),
+      id: generateRandomString('45pKVhplO0QnwNl'.length),
       version: "1.0.0",
       action: "PING",
       data: {},
