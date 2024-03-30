@@ -160,7 +160,7 @@ class App {
     }
 
     // Get the IP address of the proxy
-    const ipAddress = await getIpAddress(this.proxy) || 'unknown-'.generateRandomString(10)
+    const ipAddress = await getIpAddress(this.proxy)
 
     recorder.setUserIpStatus(this.userId, ipAddress, 'active')
     recorder.increaseUserIpRetries(this.userId, ipAddress)

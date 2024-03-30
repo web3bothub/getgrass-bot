@@ -74,8 +74,8 @@
           </div>
           <div class="flex gap-1 flex-wrap my-4">
             <template x-for="(ip, index) in user.ips || {}">
-              <span class="inline-block h-5 w-5 rounded-sm animate-pulse" :class="{
-                  'bg-green-500': ip.status == 'active' && !ip.sleeping,
+              <span class="inline-block h-5 w-5 rounded-sm" :class="{
+                  'bg-green-500 animate-pulse': ip.status == 'active' && !ip.sleeping,
                   'bg-red-500': ip.status == 'error',
                   'bg-blue-300': ip.sleeping,
                   'bg-orange-100 dark:bg-orange-400': ['closed'].includes(ip.status)
