@@ -82,7 +82,7 @@
                 }"></span>
             </template>
             <template x-if="Object.values(user.ips).length < (user.ipsCount || 50)">
-              <template x-for="i in 50">
+              <template x-for="i in (user.ipsCount - Object.values(user.ips).length)">
                 <span class="inline-block h-5 w-5 rounded-sm bg-gray-200/50 dark:bg-gray-800"></span>
               </template>
             </template>

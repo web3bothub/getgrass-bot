@@ -168,7 +168,7 @@ class App {
     if (this.retries > 2) {
       console.error(`[ERROR] too many retries(${this.retries}), sleeping...`)
       recorder.markAsSleeping(this.userId, ipAddress)
-      await sleep(getRandomInt(10000, 60000))
+      await sleep(getRandomInt(100, 6000))
     }
 
     // Loop through each websocketUrl in case the other does not work
@@ -192,7 +192,7 @@ class App {
       recorder.setUserIpStatus(this.userId, ipAddress, 'active')
       console.log(`[REVEIVED] received message: ${message}`)
 
-      await sleep(getRandomInt(2, 500))
+      await sleep(getRandomInt(2, 80))
 
       // Update last live connection timestamp
       this.lastLiveConnectionTimestamp = getUnixTimestamp()
@@ -312,7 +312,7 @@ class App {
       } catch (e) {
         // Do nothing.
       }
-      await sleep(getRandomInt(120, 20500))
+      await sleep(getRandomInt(120, 2000))
       this.initialize()
       clearInterval(timer)
       return
