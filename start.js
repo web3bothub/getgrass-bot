@@ -38,7 +38,7 @@ console.log(`[${userId}] Starting with user with ${proxyCount} proxies in ${area
 
 async function main() {
   const promises = PROXIES.map(async proxy => {
-    await sleep(getRandomInt(1000, 120000))
+    await sleep(getRandomInt(1000, 60000))
     console.log(`[${USER.id}] Starting with proxy ${proxy}...`)
     await run(USER, proxy)
   })
