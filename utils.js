@@ -23,7 +23,7 @@ function getRandomInt(min, max) {
 }
 
 async function getIpAddress(proxy) {
-  let optiosn = {}
+  let options = {}
 
   if (proxy) {
     options.dispatcher = new ProxyAgent(proxy)
