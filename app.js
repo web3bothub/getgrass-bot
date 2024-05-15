@@ -174,12 +174,17 @@ class App {
     // Loop through each websocketUrl in case the other does not work
     const websocketUrl = WEBSOCKET_URLS[this.retries % WEBSOCKET_URLS.length]
 
-    this.websocket = new WebSocket(websocketUrl, {
-      agent: new HttpsProxyAgent(this.proxy),
+    let options = {
       headers: { 'user-agent': this.userAgent },
       rejectUnauthorized: false,
       ca: fs.readFileSync(path.join(__dirname, '/ssl/websocket.pem')),
-    })
+    }
+
+    if (this.proxy) {
+      options.agent = new HttpsProxyAgent(this.proxy)
+    }
+
+    this.websocket = new WebSocket(websocketUrl, options)
 
     this.websocket.on('open', async function (e) {
       console.log("[OPENED] Websocket Open")
