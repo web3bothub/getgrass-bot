@@ -23,8 +23,13 @@ function getRandomInt(min, max) {
 }
 
 async function getIpAddress(proxy) {
-  const dispatcher = new ProxyAgent(proxy)
-  return await fetch('https://api.ipify.org?format=json', proxy ? { dispatcher } : {})
+  let optiosn = {}
+
+  if (proxy) {
+    options.dispatcher = new ProxyAgent(proxy)
+  }
+
+  return await fetch('https://api.ipify.org?format=json', options)
     .then(response => response.json())
     .then(data => data.ip)
 }
