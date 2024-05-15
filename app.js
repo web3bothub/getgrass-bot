@@ -153,7 +153,7 @@ class App {
 
   async initialize() {
     const namespace = uuid.NIL
-    this.browserId ??= uuidv3(this.proxy, namespace)
+    this.browserId ??= uuidv3(this.proxy ?? '', namespace)
 
     if (this.proxy) {
       console.info(`[INITIALIZE] request with proxy: ${this.proxy}...`)
