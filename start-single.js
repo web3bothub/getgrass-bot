@@ -1,22 +1,17 @@
-// const { exec } = require("child_process")
-import { program } from 'commander'
 import { run } from './app.js'
-import spinner from './spinner.js'
 
-program
-  .option('-u, --user <string>', '<userId>')
-  .parse()
+import { randomUserAgent } from './utils.js'
 
-const options = program.opts()
-const userId = options.user
+const USER_ID = process.env.USER_ID
 
-if (!userId) {
-  program.help()
+if (!USER_ID) {
+  console.error('USER_ID not set')
+  process.exit(1)
 }
 
 const USER = {
-  id: userId,
-  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
+  id: USER_ID,
+  userAgent: randomUserAgent()
 }
 
 spinner.clear()

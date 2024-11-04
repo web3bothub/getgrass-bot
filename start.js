@@ -1,32 +1,22 @@
-import { program } from 'commander'
-import dotenv from 'dotenv'
 import fs from 'fs'
 import { run } from './app.js'
 import { getRandomInt, randomUserAgent, sleep } from './utils.js'
-dotenv.config()
 
 const USER_ID = process.env.USER_ID
 
-program
-  .option('-u, --user <string>', '<userId>')
-
-program.parse()
-
-const options = program.opts()
-const userId = options.user
-
-if (!userId || !USER_ID) {
-  program.help()
+if (!USER_ID) {
+  console.error('USER_ID not set')
+  process.exit(1)
 }
 
 const USER = {
-  id: userId || USER_ID,
+  id: USER_ID,
   userAgent: randomUserAgent()
 }
 
 const PROXIES = fs.readFileSync('proxies.txt').toString().split('\n').map(proxy => proxy.trim())
 
-console.info(`[${userId}] Starting with user with ${PROXIES.length} proxies...`)
+console.info(`[${USER_ID}] Starting with user with ${PROXIES.length} proxies...`)
 
 async function main() {
   const promises = PROXIES.map(async proxy => {
