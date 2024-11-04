@@ -1,6 +1,7 @@
 import axios from "axios"
-import { ProxyAgent } from "proxy-agent"
-import proxyChain from "proxy-chain"
+import { HttpProxyAgent } from "http-proxy-agent"
+import { HttpsProxyAgent } from "https-proxy-agent"
+import { SocksProxyAgent } from "socks-proxy-agent"
 
 export const randomUserAgent = () => {
   const userAgents = [
@@ -26,12 +27,12 @@ export const sleep = (ms) => {
 }
 
 export const getProxyAgent = async (proxy) => {
-  if (proxy.startsWith('http://') || proxy.startsWith('https://')) {
-    return new ProxyAgent(proxy)
+  if (proxy.startsWith('http://')) {
+    return new HttpProxyAgent(proxy)
+  } else if (proxy.startsWith('https://')) {
+    return new HttpsProxyAgent(proxy)
   } else if (proxy.startsWith('socks://') || proxy.startsWith('socks5://')) {
-    const newProxyUrl = await proxyChain.anonymizeProxy(proxy)
-    console.log(`[PROXY] Anonymized proxy ${proxy} to ${newProxyUrl}`)
-    return new ProxyAgent(newProxyUrl)
+    return new SocksProxyAgent(proxy)
   }
 
   return null
@@ -48,10 +49,15 @@ export async function getIpAddress(proxy) {
   console.log(`[GET IP] Getting IP address...${proxy ? ` with proxy ${proxy}` : ''}`)
 
   if (proxy) {
-    const agent = getProxyAgent(proxy)
-
-    options.httpAgent = agent.httpAgent
-    options.httpsAgent = agent.httpsAgent
+    const agent = await getProxyAgent(proxy)
+    console.log(`[GET IP] Using proxy agent...`)
+    if (proxy.startsWith('socks://') || proxy.startsWith('socks5://')) {
+      options.httpAgent = agent
+      options.httpsAgent = agent
+    } else {
+      options.httpAgent = agent.httpAgent
+      options.httpsAgent = agent.httpsAgent
+    }
   }
 
   return await axios.get('https://myip.ipip.net', options)

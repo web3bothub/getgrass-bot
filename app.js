@@ -142,7 +142,7 @@ class App {
     const ipAddress = await getIpAddress(this.proxy)
     console.info(`[INITIALIZE] IP address: ${chalk.blue(ipAddress)}`)
 
-    if (!ipAddress.includes(new URL(this.proxy).host)) {
+    if (this.proxy && !ipAddress.includes(new URL(this.proxy).hostname)) {
       console.error(`[ERROR] Proxy IP address does not match! maybe the proxy is not working...`)
       return
     }
