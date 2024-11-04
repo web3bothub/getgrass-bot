@@ -172,7 +172,9 @@ class App {
     }
 
     if (this.proxy) {
-      options.agent = new ProxyAgent()
+      options.agent = new ProxyAgent(this.proxy)
+      console.log(options.agent)
+
     }
 
     this.websocket = new WebSocket(websocketUrl, options)

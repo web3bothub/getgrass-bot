@@ -24,6 +24,8 @@
     "node-fetch": "^3.3.2",
     "ora": "^8.1.1",
     "proxy-agent": "^6.4.0",
+    "proxy-chain": "^2.5.4",
+    "socks-proxy-agent": "^8.0.4",
     "uuid": "^9.0.1",
     "ws": "^8.16.0"
   }

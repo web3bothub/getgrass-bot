@@ -1,5 +1,6 @@
 import axios from "axios"
 import { ProxyAgent } from "proxy-agent"
+import proxyChain from "proxy-chain"
 
 export const randomUserAgent = () => {
   const userAgents = [
@@ -24,6 +25,18 @@ export const sleep = (ms) => {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
+export const getProxyAgent = async (proxy) => {
+  if (proxy.startsWith('http://') || proxy.startsWith('https://')) {
+    return new ProxyAgent(proxy)
+  } else if (proxy.startsWith('socks://') || proxy.startsWith('socks5://')) {
+    const newProxyUrl = await proxyChain.anonymizeProxy(proxy)
+    console.log(`[PROXY] Anonymized proxy ${proxy} to ${newProxyUrl}`)
+    return new ProxyAgent(newProxyUrl)
+  }
+
+  return null
+}
+
 export function getRandomInt(min, max) {
   const minCeiled = Math.ceil(min)
   const maxFloored = Math.floor(max)
@@ -35,9 +48,10 @@ export async function getIpAddress(proxy) {
   console.log(`[GET IP] Getting IP address...${proxy ? ` with proxy ${proxy}` : ''}`)
 
   if (proxy) {
-    const agent = new ProxyAgent(proxy)
-    options.httpAgent = agent
-    options.httpsAgent = agent
+    const agent = getProxyAgent(proxy)
+
+    options.httpAgent = agent.httpAgent
+    options.httpsAgent = agent.httpsAgent
   }
 
   return await axios.get('https://myip.ipip.net', options)
