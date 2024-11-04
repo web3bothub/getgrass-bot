@@ -1,6 +1,6 @@
 # Getgrass Bot
 
-A bot for [https://app.getgrass.io/dashboard](https://app.getgrass.io/register/?referralCode=qY96g1DYyIxe3B4)， which can automatically claim rewards for you.
+A bot for [https://app.getgrass.io](https://app.getgrass.io/register/?referralCode=qY96g1DYyIxe3B4)， which can automatically claim rewards for you.
 
 [中文文档](README_CN.md)
 

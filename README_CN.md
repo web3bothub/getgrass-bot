@@ -1,6 +1,6 @@
 # Getgrass Bot
 
-getgrass-bot 是一个用于自动获取 Getgrass 网站奖励的机器人。
+getgrass-bot 是一个用于自动获取 [https://app.getgrass.io](https://app.getgrass.io/register/?referralCode=qY96g1DYyIxe3B4) 网站奖励的机器人。
 
 > [!WARNING]
 > 我不对该机器人造成的任何损失或损害负责。使用风险自负。
