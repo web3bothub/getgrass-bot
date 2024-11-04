@@ -45,7 +45,7 @@ socks5://username:password@hostname2:port
 1. 使用 Docker 运行 `getgrass-bot`：
 
 ```bash
-docker run -v $(pwd)/proxies.txt:/app/proxies.txt -e USER_ID="your-user-id" overtrue/getgrass-bot
+docker run -d -v $(pwd)/proxies.txt:/app/proxies.txt -e USER_ID="your-user-id" overtrue/getgrass-bot
 ```
 
 ## 手动安装
