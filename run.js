@@ -1,21 +1,16 @@
-const { exec } = require('child_process')
-const { input } = require('@inquirer/prompts')
-const { initUser } = require('./recorder')
+import { input } from '@inquirer/prompts'
+import { exec } from 'child_process'
 
 async function main() {
   const userId = await input({ message: 'User ID: ' })
-  const area = await input({ message: 'Contry code: ' })
-  const proxyCount = await input({ message: 'Proxy count: ', default: 50 })
   const appName = await input({ message: 'pm2 app name: ', default: `grass-${userId}` })
 
   if (!userId || !area) {
-    console.log('User ID and area are required')
+    console.log('User ID required')
     process.exit(1)
   }
 
-  initUser(userId, appName, proxyCount)
-
-  const command = `pm2 start start.js --name ${appName} --restart-delay=30000 -- --user ${userId} --area ${area} --count ${proxyCount}`
+  const command = `pm2 start start.js --name ${appName} --restart-delay=30000 -- --user ${userId}`
 
   exec(command, (error, stdout) => {
     if (error) {

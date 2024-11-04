@@ -1,36 +1,16 @@
-/* eslint-disable no-restricted-globals */
-/* eslint-disable no-undef */
-/* eslint-disable no-param-reassign */
-/* eslint-disable no-var */
-/* eslint-disable vars-on-top */
-/* eslint-disable no-restricted-syntax */
-/* eslint-disable no-use-before-define */
-/* eslint-disable camelcase */
-/*
-    You'll also need to modify the "websocket" variable in the
-    initialize() function in this script with the appropriate
-    connection URI for your host. For simple testing, the default
-    connection string of "ws://127.0.0.1:4343" should be fine.
-*/
+import chalk from 'chalk'
+import fs from 'fs'
+import ora from 'ora'
+import path from 'path'
+import { ProxyAgent } from 'proxy-agent'
+import { fileURLToPath } from 'url'
+import { NIL, v4 as uuidV4, v5 as uuidV5 } from 'uuid'
+import WebSocket from 'ws'
+import { getIpAddress, getRandomInt, sleep } from './utils.js'
+const __filename = fileURLToPath(import.meta.url) // get the resolved path to the file
+const __dirname = path.dirname(__filename) // get the name of the directory
 
-const WebSocket = require('ws')
-const { v3: uuidv3 } = require('uuid')
-const uuid = require('uuid')
-const fs = require('fs')
-const path = require('path')
-const { HttpsProxyAgent } = require('https-proxy-agent')
-const { sleep, getRandomInt, generateRandomString, getIpAddress } = require('./utils')
 const getUnixTimestamp = () => Math.floor(Date.now() / 1000)
-const recorder = require('./recorder')
-
-function uuidv4() {
-  return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c) =>
-    (
-      c ^
-      (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))
-    ).toString(16)
-  )
-}
 
 const PING_INTERVAL = 20 * 1000
 
@@ -38,8 +18,6 @@ const WEBSOCKET_URLS = [
   "wss://proxy.wynd.network:4650",
   "wss://proxy.wynd.network:4444",
 ]
-// const WEBSOCKET_URLS = ["ws://proxy.dev.getgrass.io:4343"];
-// const WEBSOCKET_URLS = ["ws://127.0.0.1:4343"];
 
 const STATUSES = {
   CONNECTED: "CONNECTED",
@@ -85,15 +63,16 @@ const performHttpRequest = async (params) => {
       ],
     },
   })
+
   const gotFetch = createFetch(extendedGot)
 
   // Whether to include cookies when sending request
-  const credentials_mode = params.authenticated ? "include" : "omit"
+  const credentialsMode = params.authenticated ? "include" : "omit"
 
   const requestOptions = {
     headers: params.headers,
     method: params.method,
-    credentials: credentials_mode,
+    credentials: credentialsMode,
     mode: "cors",
     cache: "no-cache",
     redirect: "follow",
@@ -139,7 +118,7 @@ const performHttpRequest = async (params) => {
 }
 
 class App {
-  constructor(user, proxy, version = '3.3.2') {
+  constructor(user, proxy, version = '4.26.2') {
     this.proxy = proxy
     this.userId = user.id
     this.version = version
@@ -152,22 +131,18 @@ class App {
   }
 
   async initialize() {
-    const namespace = uuid.NIL
-    this.browserId ??= uuidv3(this.proxy ?? '', namespace)
+    this.browserId ??= uuidV5(this.proxy ?? '', NIL)
 
     if (this.proxy) {
-      console.info(`[INITIALIZE] request with proxy: ${this.proxy}...`)
+      console.info(`[INITIALIZE] request with proxy: ${chalk.blue(this.proxy)}...`)
     }
 
     // Get the IP address of the proxy
     const ipAddress = await getIpAddress(this.proxy)
-
-    recorder.setUserIpStatus(this.userId, ipAddress, 'active')
-    recorder.increaseUserIpRetries(this.userId, ipAddress)
+    console.log(`[INITIALIZE] IP address: ${chalk.blue(ipAddress)}`)
 
     if (this.retries > 2) {
       console.error(`[ERROR] too many retries(${this.retries}), sleeping...`)
-      recorder.markAsSleeping(this.userId, ipAddress)
       await sleep(getRandomInt(100, 6000))
     }
 
@@ -175,13 +150,23 @@ class App {
     const websocketUrl = WEBSOCKET_URLS[this.retries % WEBSOCKET_URLS.length]
 
     let options = {
-      headers: { 'user-agent': this.userAgent },
+      headers: {
+        'Host': 'proxy2.wynd.network:4650',
+        'Connection': 'Upgrade',
+        "Pragma": "no-cache",
+        "Cache-Control": "no-cache",
+        "User-Agent": this.userAgent,
+        "Upgrade": "websocket",
+        "Origin": "chrome-extension://lkbnfiajjmbhnfledhphioinpickokdi",
+        "Sec-WebSocket-Version": "13",
+        "Accept-Language": "en-US,en;q=0.9,id;q=0.8",
+      },
       rejectUnauthorized: false,
       ca: fs.readFileSync(path.join(__dirname, '/ssl/websocket.pem')),
     }
 
     if (this.proxy) {
-      options.agent = new HttpsProxyAgent(this.proxy)
+      options.agent = new ProxyAgent()
     }
 
     this.websocket = new WebSocket(websocketUrl, options)
@@ -190,31 +175,29 @@ class App {
       console.log("[OPENED] Websocket Open")
       this.lastLiveConnectionTimestamp = getUnixTimestamp()
       this.websocketStatus = STATUSES.CONNECTED
-      recorder.setUserIpStatus(this.userId, ipAddress, 'open')
     }.bind(this))
 
     this.websocket.on('message', async function (message) {
-      recorder.setUserIpStatus(this.userId, ipAddress, 'active')
-      console.log(`[REVEIVED] received message: ${message}`)
+      console.log(`[REVEIVED] received message: ${chalk.blue(message)}`)
 
       await sleep(getRandomInt(2, 80))
 
       // Update last live connection timestamp
       this.lastLiveConnectionTimestamp = getUnixTimestamp()
 
-      let parsed_message
+      let parsedMessage
       try {
-        parsed_message = JSON.parse(message)
+        parsedMessage = JSON.parse(message)
       } catch (e) {
-        console.error("[ERROR] Could not parse WebSocket message!", message)
-        console.error(e)
+        console.error(`[ERROR] Could not parse WebSocket message! ${chalk.red(message)}`)
+        console.error(`[ERROR] ${chalk.red(e)}`)
         return
       }
 
       let result = {}
-      switch (parsed_message.action) {
+      switch (parsedMessage.action) {
         case 'HTTP_REQUEST':
-          result = await performHttpRequest(parsed_message.data)
+          result = await performHttpRequest(parsedMessage.data)
           break
         case 'AUTH':
           result = {
@@ -224,59 +207,52 @@ class App {
             timestamp: getUnixTimestamp(),
             device_type: "extension",
             version: this.version,
+            extension_id: "lkbnfiajjmbhnfledhphioinpickokdi",
           }
           break
         case 'PONG':
           result = {}
+          await sleep(getRandomInt(20, 120))
           break
         default:
-          console.error(`[ERROR] No RPC action ${parsed_message.action}!`)
+          console.error(`[ERROR] No RPC action ${chalk.red(parsedMessage.action)}!`)
           break
       }
 
       try {
         const message = JSON.stringify({
           // Use same ID so it can be correlated with the response
-          id: parsed_message.id,
-          origin_action: parsed_message.action,
+          id: parsedMessage.id,
+          origin_action: parsedMessage.action,
           result: result,
         })
 
         this.websocket.send(message)
-        console.log(`[SENT] message sent: ${message}`)
+        console.log(`[SENT] message sent: ${chalk.green(message)}`)
       } catch (e) {
         console.error(
-          `[ERROR] RPC encountered error for message ${JSON.stringify(parsed_message)}: ${e}, ${e.stack}`
+          `[ERROR] RPC encountered error for message ${chalk.red(JSON.stringify(parsedMessage))}: ${e}, ${e.stack}`
         )
         this.websocket.send(
           JSON.stringify({
             action: "LOGS",
-            data: `RPC encountered error for message ${JSON.stringify(parsed_message)}: ${e}, ${e.stack}`,
+            data: `RPC encountered error for message ${chalk.red(JSON.stringify(parsedMessage))}: ${e}, ${e.stack}`,
           })
         )
-        console.error(`[ERROR] RPC action ${parsed_message.action} encountered error: `, e)
-
-        recorder.setUserIpStatus(this.userId, ipAddress, 'error')
-        recorder.updateUser(this.userId, 'lastError', e)
+        console.error(`[ERROR] RPC action ${chalk.red(parsedMessage.action)} encountered error: `, e)
       }
     }.bind(this))
 
     this.websocket.on('close', async function (code) {
       // e.g. server process killed or network down
       // event.code is usually 1006 in this case
-      console.log(`[CLOSE] Connection died: ${code}`)
+      console.log(`[CLOSE] Connection died: ${chalk.red(code)}`)
       this.websocketStatus = STATUSES.DEAD
       this.retries++
-      recorder.setUserIpStatus(this.userId, ipAddress, 'closed')
-      recorder.updateUser(this.userId, 'lastError', 'Connection died')
-      recorder.increaseUserIpRetries(this.userId, ipAddress)
     }.bind(this))
 
     this.websocket.on('error', function (error) {
       this.retries++
-      recorder.setUserIpStatus(this.userId, ipAddress, 'error')
-      recorder.updateUser(this.userId, 'lastError', error)
-      recorder.increaseUserIpRetries(this.userId, ipAddress)
       console.error(`[ERROR] ${error}`)
     }.bind(this))
   }
@@ -297,7 +273,7 @@ class App {
 
     // Check WebSocket state and make sure it's appropriate
     if (PENDING_STATES.includes(this.websocket?.readyState)) {
-      console.log("[WARNING] WebSocket not in appropriate state for liveness check...")
+      console.warn("[WARNING] WebSocket not in appropriate state for liveness check...")
       return
     }
 
@@ -312,7 +288,7 @@ class App {
       )
 
       try {
-        console.log(`[CLOSE] tring to close websocket...`)
+        console.info(`[CLOSE] tring to close websocket...`)
         this.websocket.close()
       } catch (e) {
         // Do nothing.
@@ -331,28 +307,58 @@ class App {
     // If this timestamp gets too old, the WebSocket
     // will be severed and started again.
     const message = JSON.stringify({
-      id: generateRandomString('45pKVhplO0QnwNl'.length),
+      id: uuidV4(),
       version: "1.0.0",
       action: "PING",
       data: {},
     })
 
-    console.log(`[PING] send ping: ${message}`)
+    console.log(`[PING] send ping: ${chalk.green(message)}`)
 
     this.websocket.send(message)
   }
 }
 
-module.exports = {
-  run: async function run(user, proxy) {
-    const app = new App(user, proxy)
+export async function run(user, proxy) {
+  const app = new App(user, proxy)
 
-    console.log(`[START] [${user.id}] starting...`)
+  const spinner = ora({ text: 'Loading…' }).start()
+  let prefixText = `[user:${chalk.green(user.id.substring(-12))}]`
 
-    await app.initialize()
-
-    // Checks the websocket connection to ensure it's still live
-    // If it's not, then we attempt a reconnect
-    timer = setInterval(() => app.ping(timer), PING_INTERVAL)
+  if (proxy) {
+    const [ip, port] = new URL(proxy).host.split(':')
+    prefixText += `[proxy:${chalk.green(ip)}:${chalk.green(port)}]`
   }
+
+  spinner.prefixText = prefixText
+
+  spinner.succeed(`Started!`)
+
+  console.log = () => {
+    const text = JSON.stringify(arguments)
+    setTimeout(() => spinner.text = chalk.blue(text), 100)
+  }
+
+  console.error = () => {
+    const text = JSON.stringify(arguments)
+    setTimeout(() => spinner.text = chalk.red(text), 100)
+  }
+
+  console.warn = () => {
+    const text = JSON.stringify(arguments)
+    setTimeout(() => spinner.text = chalk.yellow(text), 100)
+  }
+
+  await app.initialize()
+
+  process.on('SIGINT', function () {
+    console.log('Caught interrupt signal')
+    app.websocket.close()
+    spinner.stop()
+    process.exit()
+  })
+
+  // Checks the websocket connection to ensure it's still live
+  // If it's not, then we attempt a reconnect
+  let timer = setInterval(() => app.ping(timer), PING_INTERVAL)
 }
