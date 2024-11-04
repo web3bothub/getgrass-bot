@@ -1,7 +1,7 @@
 {
   "name": "getgrass-bot",
   "version": "1.0.0",
-  "description": "",
+  "description": "https://github.com/web3bothub/grass-bot",
   "exports": "./start.js",
   "type": "module",
   "scripts": {
@@ -23,7 +23,6 @@
     "ora": "^8.1.1",
     "proxy-agent": "^6.4.0",
     "uuid": "^9.0.1",
-    "ws": "^8.16.0",
-    "yocto-spinner": "^0.1.1"
+    "ws": "^8.16.0"
   }
 }
