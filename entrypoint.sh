@@ -2,4 +2,4 @@
 
 USER_ID=${USER_ID} pm2 start /app/start.js
 
-bash
+tail -f /dev/null
