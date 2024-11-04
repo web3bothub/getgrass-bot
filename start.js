@@ -14,7 +14,7 @@ const USER = {
   userAgent: randomUserAgent()
 }
 
-const PROXIES = fs.readFileSync('proxies.txt').toString().split('\n').map(proxy => proxy.trim())
+const PROXIES = fs.readFileSync('proxies.txt').toString().split('\n').map(proxy => proxy.trim()).filter(proxy => proxy)
 
 console.info(`[${USER_ID}] Starting with user with ${PROXIES.length} proxies...`)
 

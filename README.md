@@ -81,14 +81,14 @@ socks5://username:password@hostname2:port
 1. Run the `getgrass-bot` by executing the following command:
 
 ```bash
-node start.js -u "your-user-id"
+USER_ID="your-user-id" node start.js
 ```
 
 1. If you want to run the bot in the background, you can use the `pm2` package:
 
 ```bash
 npm install -g pm2
-pm2 start start.js --name getgrass-bot -- -u "your-user-id"
+USER_ID="your-user-id" pm2 start start.js
 ```
 
 ## Note

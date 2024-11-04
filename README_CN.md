@@ -79,14 +79,14 @@ socks5://username:password@hostname2:port
 1. 通过执行以下命令运行 `getgrass-bot`：
 
 ```bash
-node start.js -u "your-user-id"
+USER_ID="your-user-id" node start.js
 ```
 
 1. 如果您想在后台运行机器人，可以使用 `pm2` 包：
 
 ```bash
 npm install -g pm2
-pm2 start start.js --name getgrass-bot -- -u "your-user-id"
+USER_ID="your-user-id" pm2 start start.js
 ```
 
 ## 注意

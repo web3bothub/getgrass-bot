@@ -1,3 +1,4 @@
+import axios from "axios"
 import { ProxyAgent } from "proxy-agent"
 
 export const randomUserAgent = () => {
@@ -31,12 +32,14 @@ export function getRandomInt(min, max) {
 
 export async function getIpAddress(proxy) {
   let options = {}
+  console.log(`[GET IP] Getting IP address...${proxy ? ` with proxy ${proxy}` : ''}`)
 
   if (proxy) {
-    options.agent = new ProxyAgent(proxy)
+    const agent = new ProxyAgent(proxy)
+    options.httpAgent = agent
+    options.httpsAgent = agent
   }
 
-  return await fetch('https://api.ipify.org?format=json', options)
-    .then(response => response.json())
-    .then(data => data.ip)
+  return await axios.get('https://myip.ipip.net', options)
+    .then(response => response.data)
 }

@@ -138,8 +138,14 @@ class App {
     }
 
     // Get the IP address of the proxy
+    console.info(`[INITIALIZE] Getting IP address...`, this.proxy)
     const ipAddress = await getIpAddress(this.proxy)
-    console.log(`[INITIALIZE] IP address: ${chalk.blue(ipAddress)}`)
+    console.info(`[INITIALIZE] IP address: ${chalk.blue(ipAddress)}`)
+
+    if (!ipAddress.includes(new URL(this.proxy).host)) {
+      console.error(`[ERROR] Proxy IP address does not match! maybe the proxy is not working...`)
+      return
+    }
 
     if (this.retries > 2) {
       console.error(`[ERROR] too many retries(${this.retries}), sleeping...`)
@@ -333,27 +339,10 @@ export async function run(user, proxy) {
   spinner.prefixText = prefixText
 
   spinner.succeed(`Started!`)
-
-  console.log = () => {
-    const text = JSON.stringify(arguments)
-    setTimeout(() => spinner.text = chalk.blue(text), 100)
-  }
-
-  console.error = () => {
-    const text = JSON.stringify(arguments)
-    setTimeout(() => spinner.text = chalk.red(text), 100)
-  }
-
-  console.warn = () => {
-    const text = JSON.stringify(arguments)
-    setTimeout(() => spinner.text = chalk.yellow(text), 100)
-  }
-
   await app.initialize()
 
   process.on('SIGINT', function () {
     console.log('Caught interrupt signal')
-    app.websocket.close()
     spinner.stop()
     process.exit()
   })
