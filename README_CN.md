@@ -1,4 +1,4 @@
-# getgrass-bot
+# Getgrass Bot
 
 getgrass-bot 是一个用于自动获取 Getgrass 网站奖励的机器人。
 
