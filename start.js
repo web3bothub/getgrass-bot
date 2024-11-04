@@ -2,8 +2,10 @@ import { program } from 'commander'
 import dotenv from 'dotenv'
 import fs from 'fs'
 import { run } from './app.js'
-import { getRandomInt, sleep } from './utils.js'
+import { getRandomInt, randomUserAgent, sleep } from './utils.js'
 dotenv.config()
+
+const USER_ID = process.env.USER_ID
 
 program
   .option('-u, --user <string>', '<userId>')
@@ -13,13 +15,13 @@ program.parse()
 const options = program.opts()
 const userId = options.user
 
-if (!userId) {
+if (!userId || !USER_ID) {
   program.help()
 }
 
 const USER = {
-  id: userId,
-  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
+  id: userId || USER_ID,
+  userAgent: randomUserAgent()
 }
 
 const PROXIES = fs.readFileSync('proxies.txt').toString().split('\n').map(proxy => proxy.trim())
