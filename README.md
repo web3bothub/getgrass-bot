@@ -6,6 +6,7 @@ A bot for [https://app.getgrass.io](https://app.getgrass.io/register/?referralCo
 
 > [!WARNING]
 > I am not responsible for any loss or damage caused by this bot. Use it at your own risk.
+> 我不对该机器人造成的任何损失或损害负责。使用风险自负。
 
 ## Usage
 
