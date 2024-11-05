@@ -5,3 +5,4 @@ package-lock.json
 proxies.txt
 example.js
 .env
+test.js

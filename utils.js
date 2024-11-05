@@ -1,5 +1,4 @@
 import axios from "axios"
-import { HttpProxyAgent } from "http-proxy-agent"
 import { HttpsProxyAgent } from "https-proxy-agent"
 import { SocksProxyAgent } from "socks-proxy-agent"
 
@@ -27,15 +26,13 @@ export const sleep = (ms) => {
 }
 
 export const getProxyAgent = async (proxy) => {
-  if (proxy.startsWith('http://')) {
-    return new HttpProxyAgent(proxy)
-  } else if (proxy.startsWith('https://')) {
+  if (proxy.startsWith('http://') || proxy.startsWith('https://')) {
     return new HttpsProxyAgent(proxy)
   } else if (proxy.startsWith('socks://') || proxy.startsWith('socks5://')) {
     return new SocksProxyAgent(proxy)
   }
 
-  return null
+  throw new Error(`Unsupported proxy ${proxy}`)
 }
 
 export function getRandomInt(min, max) {
@@ -51,13 +48,8 @@ export async function getIpAddress(proxy) {
   if (proxy) {
     const agent = await getProxyAgent(proxy)
     console.log(`[GET IP] Using proxy agent...`)
-    if (proxy.startsWith('socks://') || proxy.startsWith('socks5://')) {
-      options.httpAgent = agent
-      options.httpsAgent = agent
-    } else {
-      options.httpAgent = agent.httpAgent
-      options.httpsAgent = agent.httpsAgent
-    }
+    options.httpAgent = agent
+    options.httpsAgent = agent
   }
 
   return await axios.get('https://myip.ipip.net', options)

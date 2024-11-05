@@ -2,11 +2,10 @@ import chalk from 'chalk'
 import fs from 'fs'
 import ora from 'ora'
 import path from 'path'
-import { ProxyAgent } from 'proxy-agent'
 import { fileURLToPath } from 'url'
 import { NIL, v4 as uuidV4, v5 as uuidV5 } from 'uuid'
 import WebSocket from 'ws'
-import { getIpAddress, getRandomInt, sleep } from './utils.js'
+import { getIpAddress, getProxyAgent, getRandomInt, sleep } from './utils.js'
 const __filename = fileURLToPath(import.meta.url) // get the resolved path to the file
 const __dirname = path.dirname(__filename) // get the name of the directory
 
@@ -172,9 +171,8 @@ class App {
     }
 
     if (this.proxy) {
-      options.agent = new ProxyAgent(this.proxy)
-      console.log(options.agent)
-
+      options.agent = await getProxyAgent(this.proxy)
+      console.log('websocket proxy agent configured.')
     }
 
     this.websocket = new WebSocket(websocketUrl, options)
