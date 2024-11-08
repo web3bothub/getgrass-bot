@@ -14,8 +14,10 @@ const getUnixTimestamp = () => Math.floor(Date.now() / 1000)
 const PING_INTERVAL = 20 * 1000
 
 const WEBSOCKET_URLS = [
-  "wss://proxy.wynd.network:4650",
-  "wss://proxy.wynd.network:4444",
+  'wss://proxy.wynd.network:4444',
+  'wss://proxy.wynd.network:4650',
+  // "wss://proxy2.wynd.network:4650",
+  // "wss://proxy2.wynd.network:4444",
 ]
 
 const STATUSES = {
@@ -117,7 +119,7 @@ const performHttpRequest = async (params) => {
 }
 
 class App {
-  constructor(user, proxy, version = '4.26.2') {
+  constructor(user, proxy, version = '4.28.1') {
     this.proxy = proxy
     this.userId = user.id
     this.version = version
@@ -162,7 +164,7 @@ class App {
         "Cache-Control": "no-cache",
         "User-Agent": this.userAgent,
         "Upgrade": "websocket",
-        "Origin": "chrome-extension://lkbnfiajjmbhnfledhphioinpickokdi",
+        // "Origin": "chrome-extension://lkbnfiajjmbhnfledhphioinpickokdi",
         "Sec-WebSocket-Version": "13",
         "Accept-Language": "en-US,en;q=0.9,id;q=0.8",
       },
@@ -211,13 +213,14 @@ class App {
             user_id: this.userId,
             user_agent: this.userAgent,
             timestamp: getUnixTimestamp(),
-            device_type: "extension",
             version: this.version,
-            extension_id: "lkbnfiajjmbhnfledhphioinpickokdi",
+            device_type: "desktop",
+            // device_type: "extension",
+            // extension_id: "lkbnfiajjmbhnfledhphioinpickokdi",
           }
           break
         case 'PONG':
-          result = {}
+          result = null
           await sleep(getRandomInt(20, 120))
           break
         default:
@@ -226,12 +229,17 @@ class App {
       }
 
       try {
-        const message = JSON.stringify({
+        const data = {
           // Use same ID so it can be correlated with the response
           id: parsedMessage.id,
           origin_action: parsedMessage.action,
-          result: result,
-        })
+        }
+
+        if (result) {
+          data.result = result
+        }
+
+        const message = JSON.stringify(data)
 
         this.websocket.send(message)
         console.log(`[SENT] message sent: ${chalk.green(message)}`)
