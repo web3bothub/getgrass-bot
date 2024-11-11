@@ -1,5 +1,8 @@
 #!/bin/bash
 
+pm2 flush
+pm2 delete all
+
 USER_ID=${USER_ID} pm2 start /app/start.js
 
-tail -f /dev/null
+pm2 logs
