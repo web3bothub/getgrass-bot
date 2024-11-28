@@ -43,7 +43,7 @@ class App {
 
       if (this.proxy && !ipAddress.includes(new URL(this.proxy).hostname)) {
         console.error(`[ERROR] Proxy IP address does not match! maybe the proxy is not working...`)
-        return
+        // return
       }
     } catch (e) {
       console.error(`[ERROR] Could not get IP address! ${chalk.red(e)}`)
