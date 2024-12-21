@@ -19,7 +19,7 @@ const WEBSOCKET_URLS = [
 ]
 
 class App {
-  constructor(user, proxy, version = '4.28.2') {
+  constructor(user, proxy, version = '4.30.0') {
     this.proxy = proxy
     this.userId = user.id
     this.version = version
