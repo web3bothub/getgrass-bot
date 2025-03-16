@@ -22,7 +22,11 @@ you can obtain your user ID from the Getgrass website:
 - Paste the following command and press Enter:
 
 ```javascript
-copy(localStorage.getItem('userId'));
+const appUserIdKey = Object.keys(localStorage).find(key => key.endsWith('.appUserId'));
+if (appUserIdKey) {
+  const appUserId = localStorage.getItem(appUserIdKey);
+  console.log("appUserId:", appUserId);
+}
 ```
 
 - Copy the value returned, which is your user ID.

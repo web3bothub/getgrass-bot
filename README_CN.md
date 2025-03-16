@@ -19,7 +19,11 @@ getgrass-bot 是一个用于自动获取 [https://app.getgrass.io](https://app.g
 - 粘贴以下命令并按回车：
 
 ```javascript
-copy(localStorage.getItem('userId'));
+const appUserIdKey = Object.keys(localStorage).find(key => key.endsWith('.appUserId'));
+if (appUserIdKey) {
+  const appUserId = localStorage.getItem(appUserIdKey);
+  console.log("appUserId:", appUserId);
+}
 ```
 
 - 此动作将复制返回的值，这就是您的用户 ID（你可以粘贴到文本文件中以备将来使用）。
