@@ -1,4 +1,4 @@
-# Getgrass Bot
+# Getgrass Bot (2.x client version)
 
 A bot for [https://app.getgrass.io](https://app.getgrass.io/register/?referralCode=qY96g1DYyIxe3B4)，which can automatically claim rewards(2x) for you.
 

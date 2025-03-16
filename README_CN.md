@@ -1,4 +1,4 @@
-# Getgrass Bot
+# Getgrass Bot (2.x client version)
 
 getgrass-bot 是一个用于自动获取 [https://app.getgrass.io](https://app.getgrass.io/register/?referralCode=qY96g1DYyIxe3B4) 网站奖励的机器人（两倍积分）。
 

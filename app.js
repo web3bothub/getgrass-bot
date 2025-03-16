@@ -14,8 +14,8 @@ process.setMaxListeners(0)
 
 const getUnixTimestamp = () => Math.floor(Date.now() / 1000)
 
-const PING_INTERVAL = 20 * 1000
-const CHECKIN_INTERVAL = 5 * 60 * 1000 // 5 minutes
+const PING_INTERVAL = 5 * 1000
+const CHECKIN_INTERVAL = 2 * 60 * 1000 // 2 minutes
 const DIRECTOR_SERVER = "https://director.getgrass.io"
 const DEVICE_FILE = "devices.json"
 
@@ -30,13 +30,13 @@ const ERROR_PATTERNS = [
 ]
 
 class App {
-  constructor(user, proxy, deviceId = null, version = '5.1.1') {
+  constructor(user, proxy, deviceId = null, version = '5.2.0') {
     this.proxy = proxy
     this.userId = user.id
     this.version = version
     this.browserId = deviceId || uuidV4()
     this.websocket = null
-    this.userAgent = user.userAgent || 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36'
+    this.userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36'
     this.pingInterval = null
     this.checkinInterval = null
     this.spinner = null
@@ -52,9 +52,9 @@ class App {
         browserId: this.browserId,
         userId: this.userId,
         version: this.version,
-        extensionId: "lkbnfiajjmbhnfledhphioinpickokdi",
+        // extensionId: "lkbnfiajjmbhnfledhphioinpickokdi",
         userAgent: this.userAgent,
-        deviceType: "extension"
+        deviceType: "desktop"
       })
 
       if (response.status === 201) {
@@ -85,8 +85,8 @@ class App {
       console.info(`IP address: ${chalk.blue(ipAddress)}`)
 
       if (this.proxy && !ipAddress.includes(new URL(this.proxy).hostname)) {
-        console.error(`[ERROR] Proxy IP address does not match! maybe the proxy is not working...`)
-        return false
+        console.error(`[Warning] Proxy IP address does not match! maybe the proxy is not working...`)
+        // return false
       }
     } catch (e) {
       console.error(`[ERROR] Could not get IP address! ${chalk.red(e)}`)
@@ -112,7 +112,7 @@ class App {
       headers: {
         "Pragma": "no-cache",
         "User-Agent": this.userAgent,
-        OS: isWindows ? 'Windows' : 'Mac',
+        OS: 'Mac',
         Browser: 'Mozilla',
         Platform: 'Desktop',
         "Origin": "chrome-extension://lkbnfiajjmbhnfledhphioinpickokdi",
@@ -141,7 +141,6 @@ class App {
 
     this.websocket.on('message', async function (data) {
       let message = data.toString()
-      console.log(`[wss] <--: ${chalk.blue(message)}`)
 
       let parsedMessage
       try {
@@ -162,7 +161,7 @@ class App {
               user_id: this.userId,
               user_agent: this.userAgent,
               timestamp: getUnixTimestamp(),
-              device_type: "extension",
+              device_type: "desktop",
               version: this.version,
             }
           })
@@ -179,6 +178,7 @@ class App {
           break
 
         default:
+          console.error(`[wss] No handler for message: ${chalk.blue(message)}`)
           console.error(`[wss] No handler for action ${chalk.red(parsedMessage.action)}!`)
           break
       }
@@ -238,7 +238,6 @@ class App {
         data: {},
       })
       this.sendMessage(message)
-      console.log(`[wss] -->: ${chalk.green(message)}`)
     }, PING_INTERVAL)
   }
 
@@ -311,7 +310,7 @@ class App {
     }
 
     this.websocket.send(message)
-    console.log(`[wss] Message sent: ${chalk.green(typeof message === 'string' ? message : JSON.stringify(message))}`)
+    console.log(`[wss] -->: ${chalk.green(typeof message === 'string' ? message : JSON.stringify(message))}`)
   }
 }
 
