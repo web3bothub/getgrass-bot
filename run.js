@@ -5,7 +5,7 @@ async function main() {
   const userId = await input({ message: 'User ID: ' })
   const appName = await input({ message: 'pm2 app name: ', default: `grass-${userId}` })
 
-  if (!userId || !area) {
+  if (!userId) {
     console.log('User ID required')
     process.exit(1)
   }

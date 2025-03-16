@@ -6,3 +6,4 @@ proxies.txt
 example.js
 .env
 test.js
+devices.json
